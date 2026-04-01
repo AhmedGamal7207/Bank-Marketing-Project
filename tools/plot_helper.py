@@ -646,102 +646,133 @@ def plot_class_histogram(
     return fig, ax
 
 
-def plot_profile_success(
-    features,
+def plot_facet_grouped_box(
+    values,
+    category,
     target,
     title=None,
-    feature_labels=None,
-    age_bins=None,
-    age_labels=None,
-    top_n=15,
-    chart_type="bar",
-    y_label="Subscription Rate (%)",
+    x_label=None,
+    y_label=None,
+    legend_label=None,
+    facet_label=None,
+    facet_col_wrap=3,
+    sort_by="field",
+    ascending=True,
+    points="outliers",
 ):
-    """Create a profile success plot from multiple features and a target Series.
+    """Create faceted box plots for a numeric feature by target across categories.
 
     Parameters:
-    features: list of pandas Series used to build the profile.
-    target: pandas Series for target values.
+    values: pandas Series for numeric values.
+    category: pandas Series used for facet panels.
+    target: pandas Series for target groups.
     title: Chart title.
-    feature_labels: Optional list of labels for the feature columns.
-    age_bins: Optional bins for the first numeric feature such as age.
-    age_labels: Optional labels for the age bins.
-    top_n: Number of top profiles to show.
-    chart_type: "bar" or "heatmap".
-    y_label: Label for the success-rate metric.
+    x_label: Label for the target axis.
+    y_label: Label for the numeric axis.
+    legend_label: Label for the target legend.
+    facet_label: Label for the facet variable.
+    facet_col_wrap: Number of facet columns per row.
+    sort_by: Sort facets by "field" or "values".
+    ascending: Sort order.
+    points: Points to show such as "outliers", "all", or False.
     """
-    labels = feature_labels or [series.name or f"feature_{index + 1}" for index, series in enumerate(features)]
-    plot_df = pd.concat(features + [target], axis=1).copy()
-    plot_df.columns = labels + ["target"]
+    plot_df = pd.DataFrame(
+        {
+            x_label or target.name or "Group": target,
+            y_label or values.name or "Value": values,
+            facet_label or category.name or "Category": category,
+        }
+    ).dropna()
 
-    first_feature = labels[0]
-    if age_bins is not None:
-        plot_df[first_feature] = pd.cut(
-            plot_df[first_feature],
-            bins=age_bins,
-            labels=age_labels,
-            include_lowest=True,
-        )
+    group_name = plot_df.columns[0]
+    value_name = plot_df.columns[1]
+    facet_name = plot_df.columns[2]
 
-    plot_df = plot_df.dropna()
-    plot_df[y_label] = plot_df["target"].astype(str).str.lower().eq("yes").astype(int)
-
-    profile_df = (
-        plot_df.groupby(labels, dropna=False)[y_label]
-        .agg(["mean", "size"])
-        .reset_index()
-        .rename(columns={"mean": y_label, "size": "Count"})
-    )
-    profile_df[y_label] = profile_df[y_label] * 100
-    profile_df["Profile"] = profile_df[labels].astype(str).agg(" | ".join, axis=1)
-    profile_df = profile_df.sort_values([y_label, "Count"], ascending=[False, False]).head(top_n)
-
-    width = max(900, min(1800, 700 + len(labels) * 120 + top_n * 25))
-
-    if chart_type == "heatmap":
-        heatmap_columns = labels + [y_label]
-        heatmap_df = profile_df[heatmap_columns].copy()
-        for column in labels:
-            heatmap_df[column] = heatmap_df[column].astype(str)
-
-        heatmap_df = heatmap_df.set_index(labels)
-        fig = px.imshow(
-            heatmap_df[[y_label]].T,
-            text_auto=".1f",
-            aspect="auto",
-            color_continuous_scale="YlGn",
-            title=title or "Profile Success Heatmap",
-        )
-        fig.update_layout(
-            template=PLOTLY_TEMPLATE,
-            font=dict(family=PLOT_FONT_FAMILY, size=13),
-            title=dict(x=0.5),
-            xaxis_title="Profiles",
-            yaxis_title="Metric",
-            width=width,
-            height=500,
-            coloraxis_colorbar_title=y_label,
+    if sort_by == "values":
+        facet_order = (
+            plot_df.groupby(facet_name)[value_name]
+            .median()
+            .sort_values(ascending=ascending)
+            .index
+            .tolist()
         )
     else:
-        fig = px.bar(
-            profile_df,
-            x="Profile",
-            y=y_label,
-            color="Count",
-            text="Count",
-            title=title or "Top Client Profiles by Subscription Rate",
-            color_continuous_scale="YlGn",
-            hover_data=labels + ["Count"],
-        )
-        fig.update_traces(textposition="outside")
-        fig.update_layout(
-            template=PLOTLY_TEMPLATE,
-            font=dict(family=PLOT_FONT_FAMILY, size=13),
-            title=dict(x=0.5),
-            xaxis_title="Profile",
-            yaxis_title=y_label,
-            width=width,
-            height=550,
-        )
+        facet_order = sorted(plot_df[facet_name].unique(), reverse=not ascending)
+
+    facet_count = len(facet_order)
+    width = max(900, min(1800, facet_col_wrap * 340))
+    rows = int(np.ceil(facet_count / facet_col_wrap))
+    height = max(500, min(1600, rows * 320))
+
+    fig = px.box(
+        plot_df,
+        x=group_name,
+        y=value_name,
+        color=group_name,
+        facet_col=facet_name,
+        facet_col_wrap=facet_col_wrap,
+        points=points,
+        category_orders={facet_name: facet_order},
+        title=title or f"{value_name} by {group_name} across {facet_name}",
+        color_discrete_sequence=PLOT_COLOR_SEQUENCE,
+    )
+
+    fig.update_layout(
+        template=PLOTLY_TEMPLATE,
+        font=dict(family=PLOT_FONT_FAMILY, size=12),
+        title=dict(x=0.5),
+        xaxis_title=group_name,
+        yaxis_title=value_name,
+        legend_title_text=group_name,
+        width=width,
+        height=height,
+    )
+
+    fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
+
+    return fig
+
+
+def plot_correlation_heatmap(
+    df,
+    title=None,
+    target_column=None,
+    target_map=None,
+):
+    """Create a correlation heatmap for numeric columns in a dataframe.
+
+    Parameters:
+    df: pandas DataFrame to analyze.
+    title: Chart title.
+    target_column: Optional target column to encode and include.
+    target_map: Optional mapping for the target column values.
+    """
+    corr_df = df.select_dtypes(include=np.number).copy()
+
+    if target_column is not None and target_column in df.columns:
+        encoded_target = df[target_column].map(target_map or {"yes": 1, "no": 0})
+        corr_df[target_column] = encoded_target
+
+    corr_matrix = corr_df.corr(numeric_only=True)
+    size = max(700, min(1200, 350 + corr_matrix.shape[0] * 55))
+
+    fig = px.imshow(
+        corr_matrix,
+        text_auto=".2f",
+        aspect="auto",
+        color_continuous_scale="RdBu",
+        zmin=-1,
+        zmax=1,
+        title=title or "Correlation Heatmap",
+    )
+
+    fig.update_layout(
+        template=PLOTLY_TEMPLATE,
+        font=dict(family=PLOT_FONT_FAMILY, size=13),
+        title=dict(x=0.5),
+        width=size,
+        height=size,
+        coloraxis_colorbar_title="Correlation",
+    )
 
     return fig
