@@ -42,10 +42,11 @@ The goal of this project is to analyze the Bank Marketing dataset to understand 
 | Q19 | Does call duration relate to subscription outcome?                    | `duration` vs `y`    | Boxplot                   |
 | Q20 | Do clients with housing loans subscribe more?                         | `housing` vs `y`     | Grouped Bar               |
 | Q21 | Does contact method affect success rate?                              | `contact` vs `y`     | Bar                       |
-| Q22 | Does previous campaign outcome affect current subscription?           | `poutcome` vs `y`    | Bar                       |
-| Q23 | How does age differ between subscribers and non-subscribers?          | `age` vs `y`         | Boxplot / Violin          |
-| Q24 | Do clients with personal loans subscribe more?                        | `loan` vs `y`        | Bar                       |
-| Q25 | Is there a difference in balance distribution by subscription outcome?| `balance` vs `y`     | Class Histogram           |
+| Q22 | Which month has the highest subscription rate?           | `month` vs `y`    | Line + Bar 
+| Q23 | Does previous campaign outcome affect current subscription?           | `poutcome` vs `y`    | Bar                       |
+| Q24 | How does age differ between subscribers and non-subscribers?          | `age` vs `y`         | Boxplot / Violin          |
+| Q25 | Do clients with personal loans subscribe more?                        | `loan` vs `y`        | Bar                       |
+| Q26 | Is there a difference in balance distribution by subscription outcome?| `balance` vs `y`     | Class Histogram           |
 
 ---
 
@@ -53,11 +54,11 @@ The goal of this project is to analyze the Bank Marketing dataset to understand 
 
 | #   | Question                                                                    | Variables                              | Chart Type                   |
 | --- | --------------------------------------------------------------------------- | -------------------------------------- | ---------------------------- |
-| Q26 | Is the relationship between balance and success different across job types?| `balance` + `job` + `y`               | Grouped Boxplot / Facet Grid |
-| Q27 | Is the relationship between duration and success different across job types?| `duration` + `job` + `y`               | Grouped Boxplot / Facet Grid |
-| Q28 | Is the relationship between balance and success different across marital status?| `balance` + `marital` + `y`               | Grouped Boxplot / Facet Grid |
-| Q29 | Is the relationship between age and success different across credit default?| `age` + `default` + `y`               | Grouped Boxplot / Facet Grid |
-| Q30 | What is the correlation between all numeric features?                       | All numeric + `y`                      | Correlation Heatmap          |
+| Q27 | Is the relationship between balance and success different across job types?| `balance` + `job` + `y`               | Grouped Boxplot / Facet Grid |
+| Q28 | Is the relationship between duration and success different across job types?| `duration` + `job` + `y`               | Grouped Boxplot / Facet Grid |
+| Q29 | Is the relationship between balance and success different across marital status?| `balance` + `marital` + `y`               | Grouped Boxplot / Facet Grid |
+| Q30 | Is the relationship between age and success different across credit default?| `age` + `default` + `y`               | Grouped Boxplot / Facet Grid |
+| Q31 | What is the correlation between all numeric features?                       | All numeric + `y`                      | Correlation Heatmap          |
 
 
 ---

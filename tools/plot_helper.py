@@ -528,69 +528,6 @@ def plot_dual_axis_bar_line(
     return fig
 
 
-def plot_rate_line(
-    x,
-    target,
-    title=None,
-    x_label=None,
-    y_label="Subscription Rate (%)",
-):
-    """Create a line plot for target rate by a numeric or ordered feature.
-
-    Parameters:
-    x: pandas Series for the feature on x-axis.
-    target: pandas Series for target values.
-    title: Chart title.
-    x_label: Label for the x-axis.
-    y_label: Label for the y-axis.
-    """
-    plot_df = pd.DataFrame(
-        {
-            x_label or x.name or "Value": x,
-            "target": target,
-        }
-    ).dropna()
-
-    axis_label = plot_df.columns[0]
-    rate_df = (
-        plot_df.groupby(axis_label)
-        .agg(
-            total=("target", "size"),
-            success=("target", lambda s: s.astype(str).str.lower().eq("yes").sum()),
-        )
-        .reset_index()
-    )
-    rate_df[y_label] = rate_df["success"] / rate_df["total"] * 100
-    rate_df = rate_df.sort_values(axis_label)
-
-    width = max(700, min(1400, 450 + rate_df.shape[0] * 60))
-
-    fig = px.line(
-        rate_df,
-        x=axis_label,
-        y=y_label,
-        markers=True,
-        title=title or f"{y_label} by {axis_label}",
-    )
-
-    fig.update_traces(
-        line=dict(color=PLOT_COLOR_SEQUENCE[0], width=3),
-        marker=dict(color=PLOT_COLOR_SEQUENCE[1], size=8),
-    )
-
-    fig.update_layout(
-        template=PLOTLY_TEMPLATE,
-        font=dict(family=PLOT_FONT_FAMILY, size=13),
-        title=dict(x=0.5),
-        xaxis_title=axis_label,
-        yaxis_title=y_label,
-        width=width,
-        height=500,
-    )
-
-    return fig
-
-
 def plot_class_histogram(
     values,
     target,
