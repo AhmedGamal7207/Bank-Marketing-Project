@@ -6,6 +6,7 @@ This repo contains the code of the Bank Marketing Project on behalf of the Data 
 
 The goal of this project is to analyze the Bank Marketing dataset to understand the factors that influence whether a client subscribes to a term deposit. The analysis is divided into three levels: **Univariate**, **Bivariate**, and **Multivariate**.
 
+
 ---
 
 ## Business Questions
@@ -62,3 +63,64 @@ The goal of this project is to analyze the Bank Marketing dataset to understand 
 
 
 ---
+
+
+---
+
+## Model Deployment
+
+The prediction model is deployed as a REST API using **FastAPI** and hosted on **Render**.
+
+**Base URL:** `https://fastapi-predict.onrender.com`
+
+### Endpoints
+
+| Method | Endpoint   | Description              |
+| ------ | ---------- | ------------------------ |
+| GET    | `/home`    | Health check / welcome   |
+| POST   | `/predict` | Run a model prediction   |
+
+---
+
+### Using Python (`test_request.py`)
+
+A helper script is provided at [test_request.py](test_request.py). Import and call the `predict` function directly:
+
+```python
+from test_request import predict
+
+result = predict(dummy_parm1=1.0, dummy_parm2=2.0, dummy_parm3=3.0)
+print(result)  # {"prediction": <value>}
+```
+
+Or run it standalone:
+
+```bash
+python test_request.py
+```
+
+---
+
+### Testing with Postman
+
+1. **Method:** `POST`
+2. **URL:** `https://fastapi-predict.onrender.com/predict`
+3. **Headers:**
+   - `Content-Type: application/json`
+4. **Body** (raw JSON):
+
+```json
+{
+  "dummy_parm1": 1.0,
+  "dummy_parm2": 2.0,
+  "dummy_parm3": 3.0
+}
+```
+
+5. **Expected Response:**
+
+```json
+{
+  "prediction": <float>
+}
+```
