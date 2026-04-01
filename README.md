@@ -19,7 +19,7 @@ The goal of this project is to analyze the Bank Marketing dataset to understand 
 | Q3  | What are the most common job types?                             | `job`         | Horizontal Bar     |
 | Q4  | What is the distribution of education levels?                   | `education`   | Pie / Bar          |
 | Q5  | How is call duration distributed?                               | `duration`    | Histogram          |
-| Q6  | How many contacts are typically made per client?                | `campaign`    | Bar                |
+| Q6  | How many contacts are typically made per client?                | `campaign`    | Histogram          |
 | Q7  | Which months have the highest call volume?                      | `month`       | Bar                |
 | Q8  | What is the distribution of contact method (cellular vs telephone)? | `contact` | Pie                |
 | Q9  | What is the distribution of marital status?                     | `marital`     | Bar                |
@@ -27,7 +27,7 @@ The goal of this project is to analyze the Bank Marketing dataset to understand 
 | Q11 | How many clients have personal loans?                           | `loan`        | Pie                |
 | Q12 | How many clients have credit in default?                        | `default`     | Pie                |
 | Q13 | How is the balance distributed?                                 | `balance`     | Histogram          |
-| Q14 | Which days have the highest call volume?                        | `day_of_week` | Bar                |
+| Q14 | Which days have the highest call volume?                        | `day_of_week` | Histogram          |
 | Q15 | How many clients subscribed in a term deposit before?           | `poutcome`    | Bar                |
 
 ---
@@ -37,7 +37,7 @@ The goal of this project is to analyze the Bank Marketing dataset to understand 
 | #   | Question                                                              | Variables            | Chart Type                |
 | --- | --------------------------------------------------------------------- | -------------------- | ------------------------- |
 | Q16 | How does job type affect subscription rate?                           | `job` vs `y`         | Grouped Bar               |
-| Q17 | Does marital status influence deposit subscription?                   | `marital` vs `y`     | Stacked Bar               |
+| Q17 | Does marital status influence deposit subscription?                   | `marital` vs `y`     | Grouped Bar               |
 | Q18 | Is education level correlated with subscription success?              | `education` vs `y`   | Grouped Bar               |
 | Q19 | Does call duration relate to subscription outcome?                    | `duration` vs `y`    | Boxplot                   |
 | Q20 | Do clients with housing loans subscribe more?                         | `housing` vs `y`     | Grouped Bar               |
