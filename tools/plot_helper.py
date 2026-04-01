@@ -14,9 +14,11 @@ from scipy.stats import gaussian_kde
 PLOTLY_TEMPLATE = "plotly_white"
 PLOT_FONT_FAMILY = "Arial"
 PLOT_COLOR_SEQUENCE = px.colors.qualitative.Safe
+MPL_COLOR_SEQUENCE = sns.color_palette("Set2")
 
 
 sns.set_theme(style="whitegrid", palette="Set2")
+MONTH_ORDER = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
 
 
 def plot_pie(
@@ -44,6 +46,8 @@ def plot_pie(
         .rename_axis(x_label or column.name or "Category")
         .reset_index(name=y_label)
     )
+    category_count = pie_df.shape[0]
+    size = max(500, min(900, 420 + category_count * 35))
 
     fig = px.pie(
         pie_df,
@@ -65,6 +69,8 @@ def plot_pie(
         font=dict(family=PLOT_FONT_FAMILY, size=13),
         title=dict(x=0.5),
         legend_title_text=x_label or column.name or "Category",
+        width=size,
+        height=size,
     )
 
     return fig
@@ -207,6 +213,10 @@ def plot_bar(
     else:
         bar_df = bar_df.sort_values(by=y_label, ascending=ascending)
 
+    category_count = bar_df.shape[0]
+    width = max(700, min(1600, 450 + category_count * 70))
+    height = max(500, min(1400, 300 + category_count * 35)) if horizontal else 500
+
     if horizontal:
         fig = px.bar(
             bar_df,
@@ -238,6 +248,500 @@ def plot_bar(
         font=dict(family=PLOT_FONT_FAMILY, size=13),
         title=dict(x=0.5),
         showlegend=False,
+        width=width,
+        height=height,
     )
+
+    return fig
+
+
+def plot_grouped_bar(
+    x,
+    group,
+    title=None,
+    x_label=None,
+    y_label="Count",
+    legend_label=None,
+    sort_by="values",
+    ascending=False,
+    horizontal=False,
+):
+    """Create a grouped bar plot from two pandas Series.
+
+    Parameters:
+    x: pandas Series for the main categories.
+    group: pandas Series for the grouped categories.
+    title: Chart title.
+    x_label: Label for the main category axis.
+    y_label: Label for the count axis.
+    legend_label: Label for the legend groups.
+    sort_by: Sort by "values" or "field".
+    ascending: Sort order.
+    horizontal: Show horizontal bars if True.
+    """
+    plot_df = pd.DataFrame(
+        {
+            x_label or x.name or "Category": x,
+            legend_label or group.name or "Group": group,
+        }
+    ).dropna()
+
+    category_label = plot_df.columns[0]
+    group_label = plot_df.columns[1]
+
+    grouped_df = (
+        plot_df.groupby([category_label, group_label], dropna=False)
+        .size()
+        .reset_index(name=y_label)
+    )
+
+    if sort_by == "field":
+        category_order = sorted(grouped_df[category_label].unique(), reverse=not ascending)
+    else:
+        category_order = (
+            grouped_df.groupby(category_label)[y_label]
+            .sum()
+            .sort_values(ascending=ascending)
+            .index
+            .tolist()
+        )
+
+    group_order = sorted(grouped_df[group_label].unique())
+    width = max(700, len(category_order) * max(90, len(group_order) * 45))
+    height = max(500, len(category_order) * 35) if horizontal else 500
+
+    if horizontal:
+        fig = px.bar(
+            grouped_df,
+            x=y_label,
+            y=category_label,
+            color=group_label,
+            orientation="h",
+            barmode="group",
+            category_orders={category_label: category_order, group_label: group_order},
+            title=title or f"{x.name or 'Category'} by {group.name or 'Group'}",
+            color_discrete_sequence=PLOT_COLOR_SEQUENCE,
+        )
+        fig.update_layout(
+            xaxis_title=y_label,
+            yaxis_title=category_label,
+        )
+    else:
+        fig = px.bar(
+            grouped_df,
+            x=category_label,
+            y=y_label,
+            color=group_label,
+            barmode="group",
+            category_orders={category_label: category_order, group_label: group_order},
+            title=title or f"{x.name or 'Category'} by {group.name or 'Group'}",
+            color_discrete_sequence=PLOT_COLOR_SEQUENCE,
+        )
+        fig.update_layout(
+            xaxis_title=category_label,
+            yaxis_title=y_label,
+        )
+
+    fig.update_layout(
+        template=PLOTLY_TEMPLATE,
+        font=dict(family=PLOT_FONT_FAMILY, size=13),
+        title=dict(x=0.5),
+        legend_title_text=group_label,
+        width=width,
+        height=height,
+    )
+
+    return fig
+
+
+def plot_grouped_box(
+    values,
+    group,
+    title=None,
+    x_label=None,
+    y_label=None,
+    sort_by="field",
+    ascending=True,
+    horizontal=False,
+    points="outliers",
+):
+    """Create a grouped box plot from pandas Series.
+
+    Parameters:
+    values: pandas Series for the numeric values.
+    group: pandas Series for the category groups.
+    title: Chart title.
+    x_label: Label for the category axis.
+    y_label: Label for the numeric axis.
+    sort_by: Sort by "field" or "values".
+    ascending: Sort order.
+    horizontal: Show horizontal boxes if True.
+    points: Points to show such as "outliers", "all", or False.
+    """
+    plot_df = pd.DataFrame(
+        {
+            x_label or group.name or "Category": group,
+            y_label or values.name or "Value": values,
+        }
+    ).dropna()
+
+    category_label = plot_df.columns[0]
+    value_label = plot_df.columns[1]
+
+    if sort_by == "values":
+        category_order = (
+            plot_df.groupby(category_label)[value_label]
+            .median()
+            .sort_values(ascending=ascending)
+            .index
+            .tolist()
+        )
+    else:
+        category_order = sorted(plot_df[category_label].unique(), reverse=not ascending)
+
+    width = max(700, min(1600, 450 + len(category_order) * 85))
+    height = max(500, min(1400, 300 + len(category_order) * 40)) if horizontal else 500
+
+    if horizontal:
+        fig = px.box(
+            plot_df,
+            x=value_label,
+            y=category_label,
+            points=points,
+            orientation="h",
+            category_orders={category_label: category_order},
+            title=title or f"{value_label} by {category_label}",
+            color=category_label,
+            color_discrete_sequence=PLOT_COLOR_SEQUENCE,
+        )
+        fig.update_layout(
+            xaxis_title=value_label,
+            yaxis_title=category_label,
+        )
+    else:
+        fig = px.box(
+            plot_df,
+            x=category_label,
+            y=value_label,
+            points=points,
+            category_orders={category_label: category_order},
+            title=title or f"{value_label} by {category_label}",
+            color=category_label,
+            color_discrete_sequence=PLOT_COLOR_SEQUENCE,
+        )
+        fig.update_layout(
+            xaxis_title=category_label,
+            yaxis_title=value_label,
+        )
+
+    fig.update_layout(
+        template=PLOTLY_TEMPLATE,
+        font=dict(family=PLOT_FONT_FAMILY, size=13),
+        title=dict(x=0.5),
+        width=width,
+        height=height,
+    )
+    fig.update_layout(showlegend=False)
+
+    return fig
+
+
+def plot_dual_axis_bar_line(
+    month,
+    target,
+    title=None,
+    x_label="Month",
+    bar_label="Contacts",
+    line_label="Subscription Rate (%)",
+):
+    """Create a dual-axis bar and line plot from a category and target Series.
+
+    Parameters:
+    month: pandas Series for month.
+    target: pandas Series for target values.
+    title: Chart title.
+    x_label: Label for the x-axis.
+    bar_label: Label for the bar axis.
+    line_label: Label for the line axis.
+    """
+    plot_df = pd.DataFrame(
+        {
+            x_label: month,
+            "target": target,
+        }
+    ).dropna()
+
+    monthly_df = (
+        plot_df.groupby(x_label)
+        .agg(
+            contacts=("target", "size"),
+            subscriptions=("target", lambda s: s.astype(str).str.lower().eq("yes").sum()),
+        )
+        .reset_index()
+    )
+    monthly_df["subscription_rate"] = monthly_df["subscriptions"] / monthly_df["contacts"] * 100
+
+    month_order = [m for m in MONTH_ORDER if m in monthly_df[x_label].astype(str).str.lower().tolist()]
+    if month_order:
+        monthly_df["_month_key"] = monthly_df[x_label].astype(str).str.lower()
+        monthly_df[x_label] = pd.Categorical(monthly_df["_month_key"], categories=month_order, ordered=True)
+        monthly_df = monthly_df.sort_values(x_label)
+        monthly_df[x_label] = monthly_df[x_label].astype(str)
+        monthly_df = monthly_df.drop(columns="_month_key")
+    else:
+        monthly_df = monthly_df.sort_values(x_label)
+
+    fig = go.Figure()
+
+    fig.add_bar(
+        x=monthly_df[x_label],
+        y=monthly_df["contacts"],
+        name=bar_label,
+        marker_color=PLOT_COLOR_SEQUENCE[0],
+        yaxis="y",
+    )
+
+    fig.add_scatter(
+        x=monthly_df[x_label],
+        y=monthly_df["subscription_rate"],
+        name=line_label,
+        mode="lines+markers",
+        marker=dict(color=PLOT_COLOR_SEQUENCE[1], size=8),
+        line=dict(color=PLOT_COLOR_SEQUENCE[1], width=3),
+        yaxis="y2",
+    )
+
+    width = max(700, min(1400, 450 + monthly_df.shape[0] * 75))
+
+    fig.update_layout(
+        template=PLOTLY_TEMPLATE,
+        font=dict(family=PLOT_FONT_FAMILY, size=13),
+        title=dict(text=title or "Monthly Contacts and Subscription Rate", x=0.5),
+        xaxis=dict(title=x_label),
+        yaxis=dict(title=bar_label),
+        yaxis2=dict(title=line_label, overlaying="y", side="right"),
+        legend=dict(x=1.02, y=1),
+        width=width,
+        height=500,
+    )
+
+    return fig
+
+
+def plot_rate_line(
+    x,
+    target,
+    title=None,
+    x_label=None,
+    y_label="Subscription Rate (%)",
+):
+    """Create a line plot for target rate by a numeric or ordered feature.
+
+    Parameters:
+    x: pandas Series for the feature on x-axis.
+    target: pandas Series for target values.
+    title: Chart title.
+    x_label: Label for the x-axis.
+    y_label: Label for the y-axis.
+    """
+    plot_df = pd.DataFrame(
+        {
+            x_label or x.name or "Value": x,
+            "target": target,
+        }
+    ).dropna()
+
+    axis_label = plot_df.columns[0]
+    rate_df = (
+        plot_df.groupby(axis_label)
+        .agg(
+            total=("target", "size"),
+            success=("target", lambda s: s.astype(str).str.lower().eq("yes").sum()),
+        )
+        .reset_index()
+    )
+    rate_df[y_label] = rate_df["success"] / rate_df["total"] * 100
+    rate_df = rate_df.sort_values(axis_label)
+
+    width = max(700, min(1400, 450 + rate_df.shape[0] * 60))
+
+    fig = px.line(
+        rate_df,
+        x=axis_label,
+        y=y_label,
+        markers=True,
+        title=title or f"{y_label} by {axis_label}",
+    )
+
+    fig.update_traces(
+        line=dict(color=PLOT_COLOR_SEQUENCE[0], width=3),
+        marker=dict(color=PLOT_COLOR_SEQUENCE[1], size=8),
+    )
+
+    fig.update_layout(
+        template=PLOTLY_TEMPLATE,
+        font=dict(family=PLOT_FONT_FAMILY, size=13),
+        title=dict(x=0.5),
+        xaxis_title=axis_label,
+        yaxis_title=y_label,
+        width=width,
+        height=500,
+    )
+
+    return fig
+
+
+def plot_class_histogram(
+    values,
+    target,
+    title=None,
+    x_label=None,
+    y_label="Probability Density",
+    legend_label=None,
+):
+    """Create a filled density plot split by target classes.
+
+    Parameters:
+    values: pandas Series for numeric values.
+    target: pandas Series for class labels.
+    title: Chart title.
+    x_label: Label for the x-axis.
+    y_label: Label for the y-axis.
+    legend_label: Label for the legend.
+    """
+    plot_df = pd.DataFrame(
+        {
+            x_label or values.name or "Value": values,
+            legend_label or target.name or "Class": target,
+        }
+    ).dropna()
+
+    value_label = plot_df.columns[0]
+    class_label = plot_df.columns[1]
+    classes = plot_df[class_label].dropna().unique()
+    fig_width = max(8, min(14, 6 + len(classes)))
+
+    fig, ax = plt.subplots(figsize=(fig_width, 5))
+
+    for index, current_class in enumerate(classes):
+        class_values = plot_df.loc[plot_df[class_label] == current_class, value_label]
+        sns.kdeplot(
+            x=class_values,
+            fill=True,
+            alpha=0.35,
+            linewidth=1.6,
+            label=str(current_class),
+            color=MPL_COLOR_SEQUENCE[index % len(MPL_COLOR_SEQUENCE)],
+            ax=ax,
+        )
+
+    ax.set_title(title or f"{value_label} Distribution by {class_label}", fontsize=14)
+    ax.set_xlabel(value_label)
+    ax.set_ylabel(y_label)
+    ax.legend(title=class_label)
+    plt.tight_layout()
+    plt.show()
+    
+
+    return fig, ax
+
+
+def plot_profile_success(
+    features,
+    target,
+    title=None,
+    feature_labels=None,
+    age_bins=None,
+    age_labels=None,
+    top_n=15,
+    chart_type="bar",
+    y_label="Subscription Rate (%)",
+):
+    """Create a profile success plot from multiple features and a target Series.
+
+    Parameters:
+    features: list of pandas Series used to build the profile.
+    target: pandas Series for target values.
+    title: Chart title.
+    feature_labels: Optional list of labels for the feature columns.
+    age_bins: Optional bins for the first numeric feature such as age.
+    age_labels: Optional labels for the age bins.
+    top_n: Number of top profiles to show.
+    chart_type: "bar" or "heatmap".
+    y_label: Label for the success-rate metric.
+    """
+    labels = feature_labels or [series.name or f"feature_{index + 1}" for index, series in enumerate(features)]
+    plot_df = pd.concat(features + [target], axis=1).copy()
+    plot_df.columns = labels + ["target"]
+
+    first_feature = labels[0]
+    if age_bins is not None:
+        plot_df[first_feature] = pd.cut(
+            plot_df[first_feature],
+            bins=age_bins,
+            labels=age_labels,
+            include_lowest=True,
+        )
+
+    plot_df = plot_df.dropna()
+    plot_df[y_label] = plot_df["target"].astype(str).str.lower().eq("yes").astype(int)
+
+    profile_df = (
+        plot_df.groupby(labels, dropna=False)[y_label]
+        .agg(["mean", "size"])
+        .reset_index()
+        .rename(columns={"mean": y_label, "size": "Count"})
+    )
+    profile_df[y_label] = profile_df[y_label] * 100
+    profile_df["Profile"] = profile_df[labels].astype(str).agg(" | ".join, axis=1)
+    profile_df = profile_df.sort_values([y_label, "Count"], ascending=[False, False]).head(top_n)
+
+    width = max(900, min(1800, 700 + len(labels) * 120 + top_n * 25))
+
+    if chart_type == "heatmap":
+        heatmap_columns = labels + [y_label]
+        heatmap_df = profile_df[heatmap_columns].copy()
+        for column in labels:
+            heatmap_df[column] = heatmap_df[column].astype(str)
+
+        heatmap_df = heatmap_df.set_index(labels)
+        fig = px.imshow(
+            heatmap_df[[y_label]].T,
+            text_auto=".1f",
+            aspect="auto",
+            color_continuous_scale="YlGn",
+            title=title or "Profile Success Heatmap",
+        )
+        fig.update_layout(
+            template=PLOTLY_TEMPLATE,
+            font=dict(family=PLOT_FONT_FAMILY, size=13),
+            title=dict(x=0.5),
+            xaxis_title="Profiles",
+            yaxis_title="Metric",
+            width=width,
+            height=500,
+            coloraxis_colorbar_title=y_label,
+        )
+    else:
+        fig = px.bar(
+            profile_df,
+            x="Profile",
+            y=y_label,
+            color="Count",
+            text="Count",
+            title=title or "Top Client Profiles by Subscription Rate",
+            color_continuous_scale="YlGn",
+            hover_data=labels + ["Count"],
+        )
+        fig.update_traces(textposition="outside")
+        fig.update_layout(
+            template=PLOTLY_TEMPLATE,
+            font=dict(family=PLOT_FONT_FAMILY, size=13),
+            title=dict(x=0.5),
+            xaxis_title="Profile",
+            yaxis_title=y_label,
+            width=width,
+            height=550,
+        )
 
     return fig

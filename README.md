@@ -42,10 +42,8 @@ The goal of this project is to analyze the Bank Marketing dataset to understand 
 | Q19 | Does call duration relate to subscription outcome?                    | `duration` vs `y`    | Boxplot                   |
 | Q20 | Do clients with housing loans subscribe more?                         | `housing` vs `y`     | Grouped Bar               |
 | Q21 | Does contact method affect success rate?                              | `contact` vs `y`     | Bar                       |
-| Q22 | Which month has the highest subscription rate?                        | `month` vs `y`       | Line + Bar (dual axis)    |
 | Q23 | Does previous campaign outcome affect current subscription?           | `poutcome` vs `y`    | Bar                       |
 | Q24 | How does age differ between subscribers and non-subscribers?          | `age` vs `y`         | Boxplot / Violin          |
-| Q25 | Does number of contacts affect success?                               | `previous` vs `y`    | Line Chart                |
 | Q26 | Do clients with personal loans subscribe more?                        | `loan` vs `y`        | Bar                       |
 | Q27 | Is there a difference in balance distribution by subscription outcome?| `balance` vs `y`     | Class Histogram           |
 
