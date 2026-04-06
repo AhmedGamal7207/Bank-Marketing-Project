@@ -5,3 +5,8 @@ scikit-learn
 numpy
 pandas
 xgboost
+dash
+plotly
+scipy
+matplotlib
+seaborn
