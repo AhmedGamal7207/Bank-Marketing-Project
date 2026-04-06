@@ -573,5 +573,7 @@ def update_dashboard(jobs, educations, maritals):
     )
 
 
+server = app.server  # expose Flask server for gunicorn
+
 if __name__ == "__main__":
     app.run(debug=True, port=8050)

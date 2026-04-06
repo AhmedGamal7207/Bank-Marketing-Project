@@ -6,6 +6,7 @@ numpy
 pandas
 xgboost
 dash
+gunicorn
 plotly
 scipy
 matplotlib
