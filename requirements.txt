@@ -11,3 +11,5 @@ plotly
 scipy
 matplotlib
 seaborn
+requests
+google-generativeai
