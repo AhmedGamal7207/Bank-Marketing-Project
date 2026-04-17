@@ -1,0 +1,345 @@
+/* ── Global ──────────────────────────────────────────────────── */
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: #060B14;
+    font-family: 'Inter', 'Arial', sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(59,130,246,0.3); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(59,130,246,0.55); }
+
+/* ── KPI card ────────────────────────────────────────────────── */
+.kpi-card {
+    transition: transform 0.2s ease, box-shadow 0.22s ease !important;
+    cursor: default;
+}
+.kpi-card:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 18px 48px rgba(0,0,0,0.55) !important;
+}
+
+/* ── Chart card hover glow ───────────────────────────────────── */
+.chart-card {
+    transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
+}
+.chart-card:hover {
+    border-color: rgba(59,130,246,0.22) !important;
+    box-shadow: 0 8px 40px rgba(59,130,246,0.09), 0 2px 8px rgba(0,0,0,0.4) !important;
+}
+
+/* ── Pill checklist ──────────────────────────────────────────── */
+.pill-checklist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.pill-checklist > span {
+    display: inline-flex !important;
+}
+
+.pill-checklist label {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 15px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(255,255,255,0.03);
+    color: #64748B;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: 'Inter', Arial, sans-serif;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    transition: all 0.16s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.pill-checklist label:hover {
+    border-color: rgba(59,130,246,0.38);
+    color: #CBD5E1;
+    background: rgba(59,130,246,0.07);
+    transform: translateY(-1px);
+}
+
+.pill-checklist input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.pill-checklist label:has(input:checked) {
+    background: rgba(59,130,246,0.18);
+    border-color: rgba(59,130,246,0.52);
+    color: #93C5FD;
+    font-weight: 600;
+    box-shadow: 0 0 14px rgba(59,130,246,0.14);
+}
+
+.pill-checklist label:has(input:checked):hover {
+    background: rgba(59,130,246,0.24);
+    transform: translateY(-1px);
+}
+
+/* ── Filter section row labels ───────────────────────────────── */
+.filter-row-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+/* ── Reset button ────────────────────────────────────────────── */
+.btn-reset {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.09);
+    color: #475569;
+    border-radius: 8px;
+    padding: 7px 15px;
+    font-size: 11px;
+    font-family: 'Inter', Arial, sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+}
+.btn-reset:hover {
+    border-color: rgba(244,63,94,0.45);
+    color: #FB7185;
+    background: rgba(244,63,94,0.07);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DARK DROPDOWN — Dash 4.x exact class names
+   ══════════════════════════════════════════════════════════════ */
+
+/* Wrapper */
+.dash-dropdown {
+    font-family: 'Inter', Arial, sans-serif !important;
+}
+
+/* ── Trigger (the closed box showing selected value) ─────────── */
+.dash-dropdown-trigger {
+    background-color: #151D2E !important;
+    background: #151D2E !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    border-radius: 10px !important;
+    min-height: 42px !important;
+    cursor: pointer !important;
+}
+
+.dash-dropdown-trigger:hover {
+    border-color: rgba(59,130,246,0.45) !important;
+}
+
+/* ── Selected value text ─────────────────────────────────────── */
+.dash-dropdown-value {
+    color: #E2E8F0 !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+
+.dash-dropdown-value-item {
+    color: #E2E8F0 !important;
+}
+
+/* ── Placeholder text ────────────────────────────────────────── */
+.dash-dropdown-placeholder {
+    color: #6B7280 !important;
+    font-size: 14px !important;
+}
+
+/* ── Trigger arrow icon ──────────────────────────────────────── */
+.dash-dropdown-trigger-icon {
+    color: #6B7280 !important;
+}
+
+.dash-dropdown-trigger:hover .dash-dropdown-trigger-icon {
+    color: #93C5FD !important;
+}
+
+/* ── Search box inside opened dropdown ───────────────────────── */
+.dash-dropdown-search-container {
+    background-color: #151D2E !important;
+    background: #151D2E !important;
+    border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+.dash-dropdown-search {
+    background-color: #151D2E !important;
+    background: #151D2E !important;
+    color: #E2E8F0 !important;
+    font-size: 14px !important;
+    border: none !important;
+    caret-color: #93C5FD !important;
+}
+
+.dash-dropdown-search::placeholder {
+    color: #6B7280 !important;
+}
+
+.dash-dropdown-search-icon {
+    color: #6B7280 !important;
+}
+
+/* ── Dropdown content (the opened panel) ─────────────────────── */
+.dash-dropdown-content {
+    background-color: #151D2E !important;
+    background: #151D2E !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6) !important;
+    z-index: 9999 !important;
+}
+
+/* ── Options list container ──────────────────────────────────── */
+.dash-dropdown-options {
+    background-color: #151D2E !important;
+    background: #151D2E !important;
+}
+
+/* ── Each option ─────────────────────────────────────────────── */
+.dash-dropdown-option {
+    background-color: #151D2E !important;
+    background: #151D2E !important;
+    color: #CBD5E1 !important;
+    font-size: 13px !important;
+    cursor: pointer !important;
+    padding: 10px 14px !important;
+}
+
+.dash-dropdown-option:hover {
+    background-color: rgba(59,130,246,0.22) !important;
+    background: rgba(59,130,246,0.22) !important;
+    color: #fff !important;
+}
+
+/* Selected option (aria-selected) */
+.dash-dropdown-option[aria-selected="true"] {
+    background-color: rgba(59,130,246,0.3) !important;
+    background: rgba(59,130,246,0.3) !important;
+    color: #93C5FD !important;
+    font-weight: 600 !important;
+}
+
+/* ── Actions (clear, etc.) ───────────────────────────────────── */
+.dash-dropdown-actions {
+    color: #6B7280 !important;
+}
+
+.dash-dropdown-clear {
+    color: #6B7280 !important;
+}
+
+.dash-dropdown-clear:hover {
+    color: #EF4444 !important;
+}
+
+/* ── Value count badge (multi) ───────────────────────────────── */
+.dash-dropdown-value-count {
+    background-color: rgba(59,130,246,0.2) !important;
+    color: #93C5FD !important;
+}
+
+/* ── Grid containers ─────────────────────────────────────────── */
+.dash-dropdown-grid-container {
+    background-color: #151D2E !important;
+    background: #151D2E !important;
+}
+
+/* ── Wrapper container ───────────────────────────────────────── */
+.dash-dropdown-wrapper {
+    background-color: transparent !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   NUMBER INPUTS
+   ══════════════════════════════════════════════════════════════ */
+
+input[type="number"] {
+    background-color: #151D2E !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    color: #E2E8F0 !important;
+    border-radius: 10px !important;
+    font-size: 14px !important;
+    font-family: 'Inter', Arial, sans-serif !important;
+}
+
+input[type="number"]:focus {
+    border-color: rgba(59,130,246,0.5) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.15) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CHAT TEXT INPUT
+   ══════════════════════════════════════════════════════════════ */
+
+.chat-text-input {
+    flex: 1 !important;
+    padding: 16px 20px !important;
+    background-color: #151D2E !important;
+    border: 2px solid rgba(139,92,246,0.25) !important;
+    border-radius: 14px !important;
+    color: #F1F5F9 !important;
+    font-family: 'Inter', Arial, sans-serif !important;
+    font-size: 15px !important;
+    outline: none !important;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
+    min-height: 52px !important;
+}
+
+.chat-text-input:focus {
+    border-color: rgba(139,92,246,0.6) !important;
+    box-shadow: 0 0 0 3px rgba(139,92,246,0.15),
+                0 4px 20px rgba(139,92,246,0.1) !important;
+}
+
+.chat-text-input::placeholder {
+    color: #6B7280 !important;
+    font-size: 14px !important;
+}
+
+/* ── Tab buttons ─────────────────────────────────────────────── */
+.tab-btn {
+    transition: all 0.25s ease !important;
+}
+.tab-btn:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+}
+
+/* ── Predict button hover ────────────────────────────────────── */
+#btn-predict:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 30px rgba(59,130,246,0.45) !important;
+}
+
+/* ── Send button hover ───────────────────────────────────────── */
+#btn-chat:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 30px rgba(139,92,246,0.4) !important;
+}
+
+/* ── Chat scrollbar ──────────────────────────────────────────── */
+#chat-history::-webkit-scrollbar-thumb {
+    background: rgba(139,92,246,0.3) !important;
+}
+
+/* ── Loading overlay ─────────────────────────────────────────── */
+._dash-loading { opacity: 0.35; transition: opacity 0.2s; }
+
+/* ── Plotly cleanup ──────────────────────────────────────────── */
+.js-plotly-plot .plotly .cursor-pointer { cursor: crosshair; }

@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+joblib
+scikit-learn
+numpy
+pandas
+xgboost
+dash
+gunicorn
+plotly
+scipy
+matplotlib
+seaborn
+requests
+google-generativeai
